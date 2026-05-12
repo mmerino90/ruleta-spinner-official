@@ -263,8 +263,13 @@ button {
   top: -6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 0;
-  height: 0;
+  /* Match border-triangle width (18 + 18) so the ::before is truly centered on the wheel */
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  pointer-events: none;
   z-index: 2;
 }
 
