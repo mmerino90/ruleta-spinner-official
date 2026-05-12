@@ -27,11 +27,9 @@ const palette = [
 const state = {
   participants: [],
   spinning: false,
-  removingWinner: false,
   rotation: 0,
   lastWinner: "",
   animationFrameId: 0,
-  removalTimerId: 0,
 };
 
 const removeDiacritics = (value) =>
@@ -65,7 +63,7 @@ const setFeedback = (message, tone = "neutral") => {
 const getRemainingLabel = (count) =>
   `${count} ${count === 1 ? "participante" : "participantes"}`;
 
-const isBusy = () => state.spinning || state.removingWinner;
+const isBusy = () => state.spinning;
 
 const updateWinnerCard = () => {
   if (state.spinning) {
@@ -85,14 +83,7 @@ const updateWinnerCard = () => {
 
   winnerCard.classList.add("is-active");
   winnerName.textContent = state.lastWinner;
-
-  if (state.participants.length > 0) {
-    winnerHint.textContent =
-      "Su porción ya salió y la siguiente ronda queda lista con los nombres restantes.";
-  } else {
-    winnerHint.textContent =
-      "La lista ya quedó vacía. Puedes añadir más participantes para comenzar otra vez.";
-  }
+  winnerHint.textContent = "";
 };
 
 const updateStatus = () => {
@@ -102,12 +93,6 @@ const updateStatus = () => {
   if (state.spinning) {
     statusText.textContent =
       "La ruleta está girando. Espera a que se cierre la ronda.";
-    return;
-  }
-
-  if (state.removingWinner) {
-    statusText.textContent =
-      "Ganador confirmado. La ruleta se está preparando para la siguiente ronda.";
     return;
   }
 
@@ -122,8 +107,7 @@ const updateStatus = () => {
     return;
   }
 
-  statusText.textContent =
-    "Todos los sectores se ven iguales y el nombre ganador se elimina al terminar cada giro.";
+  statusText.textContent = "";
 };
 
 const updateControls = () => {
@@ -479,24 +463,18 @@ const spinWheel = () => {
   // The wheel only adds whole extra turns so the pointer can stop exactly on the chosen slice.
   animateSpin(targetRotation, 4000, () => {
     state.spinning = false;
-    state.removingWinner = true;
     state.lastWinner = winner.label;
+    state.participants = state.participants.filter(
+      (participant) => participant.id !== winner.id
+    );
+
+    if (state.participants.length === 0) {
+      setFeedback("Se han extraído todos los nombres.", "success");
+    } else {
+      setFeedback(`${winner.label} sale de la ruleta.`, "success");
+    }
+
     renderApp();
-
-    state.removalTimerId = window.setTimeout(() => {
-      state.participants = state.participants.filter(
-        (participant) => participant.id !== winner.id
-      );
-      state.removingWinner = false;
-
-      if (state.participants.length === 0) {
-        setFeedback("Se han extraído todos los nombres.", "success");
-      } else {
-        setFeedback(`${winner.label} sale de la ruleta.`, "success");
-      }
-
-      renderApp();
-    }, 350);
   });
 };
 

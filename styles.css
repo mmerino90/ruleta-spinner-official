@@ -58,14 +58,6 @@ button {
   padding: 4px 2px 8px;
 }
 
-.eyebrow {
-  margin: 0 0 10px;
-  color: #b8a8ff;
-  font-size: 0.9rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
 .hero-panel h1 {
   margin: 0;
   font-family: "Sora", sans-serif;
@@ -74,20 +66,11 @@ button {
   letter-spacing: -0.05em;
 }
 
-.hero-panel h1 span {
-  display: inline-block;
+.hero-panel h1 {
   background: linear-gradient(120deg, #f7efff, #b882ff 48%, #7f5cff);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-}
-
-.hero-copy {
-  width: min(680px, 100%);
-  margin: 18px 0 0;
-  color: var(--text-soft);
-  font-size: 1.02rem;
-  line-height: 1.7;
 }
 
 .panel {
@@ -277,7 +260,7 @@ button {
 
 .pointer {
   position: absolute;
-  top: -8px;
+  top: -6px;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
@@ -294,18 +277,6 @@ button {
   border-right: 18px solid transparent;
   border-top: 36px solid #fff5ff;
   filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.38));
-}
-
-.pointer-cap {
-  position: absolute;
-  top: -4px;
-  left: 50%;
-  width: 24px;
-  height: 24px;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: linear-gradient(135deg, #ffffff, #d7cbff);
-  box-shadow: 0 0 0 6px rgba(148, 128, 255, 0.1);
 }
 
 .action-row {
@@ -347,6 +318,10 @@ button {
   margin: 8px 0 0;
   color: var(--text-soft);
   line-height: 1.55;
+}
+
+.winner-hint:empty {
+  display: none;
 }
 
 .sr-only {

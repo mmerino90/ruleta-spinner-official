@@ -16,12 +16,7 @@
   <body>
     <main class="app-shell">
       <section class="hero-panel">
-        <p class="eyebrow">ruleta spinner official</p>
-        <h1>ruleta <span>spinner official</span></h1>
-        <p class="hero-copy">
-          Añade participantes, gira la ruleta y sigue avanzando ronda a ronda
-          hasta que no quede nadie por salir.
-        </p>
+        <h1>Ruleta</h1>
       </section>
 
       <section class="panel controls-panel" aria-labelledby="participants-title">
@@ -44,7 +39,7 @@
             name="participant"
             type="text"
             maxlength="40"
-            placeholder="Ej.: Violeta"
+            placeholder="Nombre"
           />
           <button id="addBtn" type="submit">Agregar</button>
         </form>
@@ -67,9 +62,7 @@
         </div>
 
         <div class="wheel-stage">
-          <div class="pointer" aria-hidden="true">
-            <span class="pointer-cap"></span>
-          </div>
+          <div class="pointer" aria-hidden="true"></div>
           <div class="wheel-glow" aria-hidden="true"></div>
           <canvas
             id="wheelCanvas"
