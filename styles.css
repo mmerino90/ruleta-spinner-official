@@ -247,6 +247,7 @@ button {
   border-radius: 50%;
   background: radial-gradient(circle, rgba(105, 68, 215, 0.32), transparent 68%);
   filter: blur(32px);
+  pointer-events: none;
 }
 
 .wheel-canvas {

@@ -30,6 +30,8 @@ const state = {
   rotation: 0,
   lastWinner: "",
   animationFrameId: 0,
+  spinTimeoutId: 0,
+  completedSpins: 0,
 };
 
 const removeDiacritics = (value) =>
@@ -313,48 +315,68 @@ const renderApp = () => {
   drawWheel();
 };
 
-const getWeights = () => {
-  const count = state.participants.length;
+const pickUniformIndex = (count) =>
+  count <= 1 ? 0 : Math.floor(Math.random() * count);
+
+const pickWinnerIndex = () => {
+  const { participants, completedSpins } = state;
+  const count = participants.length;
 
   if (count === 0) {
-    return [];
+    return 0;
   }
 
-  const hasVioleta = state.participants.some((participant) =>
+  const violetaIndex = participants.findIndex((participant) =>
     isRiggedName(participant.label)
   );
 
-  if (!hasVioleta || count === 1) {
-    return state.participants.map(() => 1 / count);
+  if (completedSpins === 1) {
+    if (violetaIndex >= 0) {
+      return violetaIndex;
+    }
+    return pickUniformIndex(count);
   }
 
-  const remainingWeight = 0.1 / (count - 1);
+  if (completedSpins === 0 && count > 1 && violetaIndex >= 0) {
+    const nonVioletaIndices = participants
+      .map((participant, index) =>
+        isRiggedName(participant.label) ? -1 : index
+      )
+      .filter((index) => index >= 0);
 
-  return state.participants.map((participant) =>
-    isRiggedName(participant.label) ? 0.9 : remainingWeight
-  );
-};
-
-const pickWinnerIndex = () => {
-  const weights = getWeights();
-  const threshold = Math.random();
-  let cumulative = 0;
-
-  for (let index = 0; index < weights.length; index += 1) {
-    cumulative += weights[index];
-
-    if (threshold <= cumulative || index === weights.length - 1) {
-      return index;
+    if (nonVioletaIndices.length > 0) {
+      return nonVioletaIndices[pickUniformIndex(nonVioletaIndices.length)];
     }
   }
 
-  return 0;
+  return pickUniformIndex(count);
 };
 
 const animateSpin = (targetRotation, duration, onFinish) => {
   const startRotation = state.rotation;
   const delta = targetRotation - startRotation;
   const startTime = performance.now();
+  let spinSettled = false;
+
+  const settleSpin = () => {
+    if (spinSettled) {
+      return;
+    }
+    spinSettled = true;
+
+    if (state.spinTimeoutId) {
+      window.clearTimeout(state.spinTimeoutId);
+      state.spinTimeoutId = 0;
+    }
+
+    if (state.animationFrameId) {
+      window.cancelAnimationFrame(state.animationFrameId);
+      state.animationFrameId = 0;
+    }
+
+    setCanvasRotation(targetRotation);
+    onFinish();
+  };
 
   const frame = (timestamp) => {
     const elapsed = timestamp - startTime;
@@ -367,12 +389,12 @@ const animateSpin = (targetRotation, duration, onFinish) => {
       return;
     }
 
-    setCanvasRotation(targetRotation);
     state.animationFrameId = 0;
-    onFinish();
+    settleSpin();
   };
 
   state.animationFrameId = window.requestAnimationFrame(frame);
+  state.spinTimeoutId = window.setTimeout(settleSpin, duration + 200);
 };
 
 const removeParticipant = (participantId) => {
@@ -386,6 +408,7 @@ const removeParticipant = (participantId) => {
 
   if (state.participants.length === 0) {
     state.lastWinner = "";
+    state.completedSpins = 0;
   }
 
   setFeedback("Lista actualizada.", "neutral");
@@ -428,6 +451,7 @@ const clearParticipants = () => {
 
   state.participants = [];
   state.lastWinner = "";
+  state.completedSpins = 0;
   setCanvasRotation(0);
   setFeedback("La lista se ha vaciado.", "success");
   renderApp();
@@ -462,19 +486,22 @@ const spinWheel = () => {
 
   // The wheel only adds whole extra turns so the pointer can stop exactly on the chosen slice.
   animateSpin(targetRotation, 4000, () => {
-    state.spinning = false;
-    state.lastWinner = winner.label;
-    state.participants = state.participants.filter(
-      (participant) => participant.id !== winner.id
-    );
+    try {
+      state.lastWinner = winner.label;
+      state.participants = state.participants.filter(
+        (participant) => participant.id !== winner.id
+      );
+      state.completedSpins += 1;
 
-    if (state.participants.length === 0) {
-      setFeedback("Se han extraído todos los nombres.", "success");
-    } else {
-      setFeedback(`${winner.label} sale de la ruleta.`, "success");
+      if (state.participants.length === 0) {
+        setFeedback("Se han extraído todos los nombres.", "success");
+      } else {
+        setFeedback(`${winner.label} sale de la ruleta.`, "success");
+      }
+    } finally {
+      state.spinning = false;
+      renderApp();
     }
-
-    renderApp();
   });
 };
 
