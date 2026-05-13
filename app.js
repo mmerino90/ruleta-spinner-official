@@ -39,8 +39,10 @@ const removeDiacritics = (value) =>
 
 const normalizeName = (value) => value.trim().replace(/\s+/g, " ");
 
-const isRiggedName = (value) =>
-  removeDiacritics(value).toLocaleLowerCase("es") === "violeta";
+const isRiggedName = (value) => {
+  const normalized = removeDiacritics(value).toLocaleLowerCase("es").trim();
+  return normalized === "vio" || /^violet(t)?(a)?$/.test(normalized);
+};
 
 const normalizeDegrees = (value) => ((value % 360) + 360) % 360;
 
