@@ -496,6 +496,7 @@ const spinWheel = () => {
       state.completedSpins += 1;
 
       if (state.participants.length === 0) {
+        state.completedSpins = 0;
         setFeedback("Se han extraído todos los nombres.", "success");
       } else {
         setFeedback(`${winner.label} sale de la ruleta.`, "success");
