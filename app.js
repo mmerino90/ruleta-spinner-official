@@ -41,7 +41,7 @@ const normalizeName = (value) => value.trim().replace(/\s+/g, " ");
 
 const isRiggedName = (value) => {
   const normalized = removeDiacritics(value).toLocaleLowerCase("es").trim();
-  return normalized === "vio" || /^violet(t)?(a)?$/.test(normalized);
+  return normalized === "vio" || normalized === "viole" || /^violet(t)?(a)?$/.test(normalized);
 };
 
 const normalizeDegrees = (value) => ((value % 360) + 360) % 360;
@@ -332,23 +332,11 @@ const pickWinnerIndex = () => {
     isRiggedName(participant.label)
   );
 
-  if (completedSpins === 1) {
+  if (completedSpins === 0) {
     if (violetaIndex >= 0) {
       return violetaIndex;
     }
     return pickUniformIndex(count);
-  }
-
-  if (completedSpins === 0 && count > 1 && violetaIndex >= 0) {
-    const nonVioletaIndices = participants
-      .map((participant, index) =>
-        isRiggedName(participant.label) ? -1 : index
-      )
-      .filter((index) => index >= 0);
-
-    if (nonVioletaIndices.length > 0) {
-      return nonVioletaIndices[pickUniformIndex(nonVioletaIndices.length)];
-    }
   }
 
   return pickUniformIndex(count);
